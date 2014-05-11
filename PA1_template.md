@@ -1,28 +1,32 @@
 # Reproducible Research: Peer Assessment 1
-```{r}
-calculateIntervalMeans <- function (knownData) {
-  intervalMeans <- aggregate(knownData$steps, list(interval = knownData$interval),
-                           mean)
-  setNames(intervalMeans, c("interval", "steps"))
+
+```r
+calculateIntervalMeans <- function(knownData) {
+    intervalMeans <- aggregate(knownData$steps, list(interval = knownData$interval), 
+        mean)
+    setNames(intervalMeans, c("interval", "steps"))
 }
 
-plotIntervalMeans <- function (intervalMeans, main) {
-  plot(intervalMeans$interval, intervalMeans$steps, type = "l",
-       main = main, xlab = "Interval ID", ylab = "Steps walked")
+plotIntervalMeans <- function(intervalMeans, main) {
+    plot(intervalMeans$interval, intervalMeans$steps, type = "l", main = main, 
+        xlab = "Interval ID", ylab = "Steps walked")
 }
 
 par(mfrow = c(1, 1))
 ```
 
 
+
 ## Loading and preprocessing the data
 Load the data using the `read.csv()` function. Since the dates are parsed as
 strings, convert them using `as.Date()` and store them back into the data table.
 
-```{r}
+
+```r
 data <- read.csv("activity.csv", stringsAsFactors = FALSE)
 data$date <- as.Date(data$date)
 ```
+
 
 
 ## What is mean total number of steps taken per day?
@@ -32,14 +36,32 @@ data$date <- as.Date(data$date)
 We aggregate the number of steps using the `aggregate()` function to calculate
 the mean number of steps for each day in the data set.
 
-```{r fig.width=6, fig.height=6}
+
+```r
 knownData <- subset(data, !is.na(steps))
 dailyTotals <- aggregate(knownData$steps, list(date = knownData$date), sum)
 dailyTotals <- setNames(dailyTotals, c("date", "steps"))
 print(paste("Mean:", mean(dailyTotals$steps)))
+```
+
+```
+## [1] "Mean: 10766.1886792453"
+```
+
+```r
 print(paste("Median:", median(dailyTotals$steps)))
+```
+
+```
+## [1] "Median: 10765"
+```
+
+```r
 hist(dailyTotals$steps, main = "Total steps walked per day", xlab = "Steps walked")
 ```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
 
 
 
@@ -47,10 +69,14 @@ hist(dailyTotals$steps, main = "Total steps walked per day", xlab = "Steps walke
 To arrive at these numbers, we aggregate by the interval identifier associated
 with each data point. We then plot it as a time series chart.
 
-```{r fig.width=6, fig.height=6}
+
+```r
 intervalMeans <- calculateIntervalMeans(knownData)
 plotIntervalMeans(intervalMeans, "Average steps walked per interval")
 ```
+
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
 
 
 
@@ -58,13 +84,16 @@ plotIntervalMeans(intervalMeans, "Average steps walked per interval")
 Now, we attempt to impute missing values by replacing them with the average for
 all measurements in that interval.
 
-```{r fig.width=6, fig.height=6}
+
+```r
 for (i in 1:nrow(data)) {
-  if (is.na(data[[i, 'steps']])) {
-    data[[i, 'steps']] <- intervalMeans[intervalMeans$interval == data[[i, 'interval']], 'steps']
-  }
+    if (is.na(data[[i, "steps"]])) {
+        data[[i, "steps"]] <- intervalMeans[intervalMeans$interval == data[[i, 
+            "interval"]], "steps"]
+    }
 }
 ```
+
 
 
 
@@ -75,7 +104,8 @@ compared to weekdays.
 Differences in weekday/weekend activity patterns can be viewed in the charts
 below.
 
-```{r fig.width=6, fig.height=6}
+
+```r
 days.weekday <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 days.weekend <- c("Saturday", "Sunday")
 data$weekday <- weekdays(data$date)
@@ -89,3 +119,6 @@ par(mfrow = c(2, 1))
 plotIntervalMeans(weekdayMeans, "Average steps walked per interval (Weekdays)")
 plotIntervalMeans(weekendMeans, "Average steps walked per interval (Weekends)")
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
+
